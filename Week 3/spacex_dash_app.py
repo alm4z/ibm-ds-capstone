@@ -8,11 +8,11 @@ import plotly.express as px
 import numpy as np
 
 # Read the airline data into pandas dataframe
-spacex_df = pd.read_csv("spacex_launch_dash.csv")
-max_payload = spacex_df['Payload Mass (kg)'].max()
-min_payload = spacex_df['Payload Mass (kg)'].min()
+spacex_df = pd.read_csv("dataset_part_2.csv")
+max_payload = spacex_df['PayloadMass'].max()
+min_payload = spacex_df['PayloadMass'].min()
 
-out= [ (val, val) for val in np.sort(spacex_df['Payload Mass (kg)'].unique()) ]
+out= [ (val, val) for val in np.sort(spacex_df['PayloadMass'].unique()) ]
 marks=dict(out) #[ {k:v} for k,v in out ]
 
 #print(marks)
@@ -29,7 +29,7 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
                                 # The default select value is for ALL sites
                                 # dcc.Dropdown(id='site-dropdown',...)
                                 dcc.Dropdown(id='site-dropdown',
-                                    options=[{'label': 'All Sites', 'value': 'ALL'}] + [ {'label': i, 'value': i} for i in spacex_df['Launch Site'].unique().tolist() ],
+                                    options=[{'label': 'All Sites', 'value': 'ALL'}] + [ {'label': i, 'value': i} for i in spacex_df['LaunchSite'].unique().tolist() ],
                                     value='ALL',
                                     placeholder="Select a Launch Site here",
                                     searchable=True
@@ -59,16 +59,16 @@ app.layout = html.Div(children=[html.H1('SpaceX Launch Records Dashboard',
 @app.callback(Output(component_id='success-pie-chart', component_property='figure'),
               Input(component_id='site-dropdown', component_property='value'))
 def get_pie_chart(entered_site):
-    filtered_df = spacex_df[spacex_df['Launch Site'] == entered_site]
+    filtered_df = spacex_df[spacex_df['LaunchSite'] == entered_site]
     if entered_site == 'ALL':
-        fig = px.pie(spacex_df, values='class', 
-        names='Launch Site', 
+        fig = px.pie(spacex_df, values='Class', 
+        names='LaunchSite', 
         title='All')
         
         return fig
     else:
         fig = px.pie(filtered_df, 
-        names='class', 
+        names='Class', 
         title=entered_site)
         return fig
         # return the outcomes piechart for a selected site
@@ -92,16 +92,16 @@ def get_scatter_chart(entered_site,payload):
     #spacex_df['Payload Mass (kg)'] == payload]
     if entered_site == 'ALL':
         fig = px.scatter(spacex_df[
-            (payload[0] <= spacex_df['Payload Mass (kg)']) & (spacex_df['Payload Mass (kg)'] <= payload[1]) 
-        ], x="Payload Mass (kg)", y="class", color='Booster Version Category')
+            (payload[0] <= spacex_df['PayloadMass']) & (spacex_df['PayloadMass'] <= payload[1]) 
+        ], x="PayloadMass", y="Class", color='BoosterVersion')
         return fig
     else:
         filtered_df = spacex_df[
-        (spacex_df['Launch Site'] == entered_site)
+        (spacex_df['LaunchSite'] == entered_site)
         &
-        (payload[0] <= spacex_df['Payload Mass (kg)']) & (spacex_df['Payload Mass (kg)'] <= payload[1]) 
+        (payload[0] <= spacex_df['PayloadMass']) & (spacex_df['PayloadMass'] <= payload[1]) 
         ]
-        fig = px.scatter(filtered_df, x="Payload Mass (kg)", y="class", color='Booster Version Category')
+        fig = px.scatter(filtered_df, x="PayloadMass", y="Class", color='BoosterVersion')
         return fig
 
 # Run the app
